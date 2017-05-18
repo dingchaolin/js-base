@@ -1,0 +1,26 @@
+{
+  "name": "js-base",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1_type.js",
+  "dependencies": {
+    "baidu-ocr-api": "^2.0.5",
+    "gm": "^1.23.0",
+    "node-tesseract": "^0.2.7",
+    "validator": "^7.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dingchaolin/js-base.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dingchaolin/js-base/issues"
+  },
+  "homepage": "https://github.com/dingchaolin/js-base#readme"
+}
