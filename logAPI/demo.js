@@ -3,22 +3,16 @@
  */
 let upsert = require('./logAPI').upsert;
 let zco = require( "zco" );
-let account = "5678",
+let account = "231425",
     areacode = "01011",
-    status = 5,
-    return_msg = "第5部",
+    status = 6,
+    return_msg = "第6部",
     source = "01110";
-
+let transaction = {account,areacode,status,return_msg,source};
 let test = function( ){
     return zco( function *( next ){
 
-        let [err,data] = yield upsert(
-            account,
-            areacode,
-            status,
-            return_msg,
-            source
-        )(next);
+        let [err,data] = yield upsert( transaction )(next);
         if( err ){
 
             throw err;

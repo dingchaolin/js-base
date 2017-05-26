@@ -10,27 +10,45 @@ const pgOptions = [];
  */
 
 
-function isExist( account, source = "" ){
+function isExist( account, status, source = "" ){
     return zco( function * ( next ){
         if( !account ){
             return {
-                isExist: false,
+                state: 0,
                 msg:"account is NULL！"
             }
 
         }
 
-        let sqlStr = `select count(*) as num from log where account = '${account}' and source = '${source}'`;
+        let currentDate = new Date();
 
+        let time = ( currentDate.getFullYear() ) + "-"
+            + (currentDate.getMonth() < 10 ? '0' + (currentDate.getMonth()+1) : (currentDate.getMonth()+1)) + "-"
+            + (currentDate.getDate() < 10 ? '0' + (currentDate.getDate()) : (currentDate.getDate())) ;
+
+        let start = +( new Date( time + " 00:00:00") ), end = +( new Date( time + " 23:59:59") );
+
+        let sqlStr = `select status from log where account = '${account}' and source = '${source}' and time_stamp < ${end} and time_stamp > ${start}`;
+        console.log( sqlStr )
         let [err, data ] = yield pgClient( pgConnectionStr, sqlStr, pgOptions);
-        let isExist = true, msg = "Exist!";
-        if( err || data.rows[0].num <= 0 ){
-            isExist = false;
-            msg = "Not Exist!"
+        console.log( data );
+        let state = 0, msg = "status <= db.status";//状态落后于数据库中的状态
+        // 0 不插入不更新 1插入 2更新
+        if( err ){
+            state = 0;
+            msg = "查询出错"
+        }else if( data.rows.length == 0  ){//不存在-插入
+            state = 1;
+            msg = "不存在"
+        }else if( data.rows.length > 0  ){//存在
+            if( data.rows[0].status < status ){//可更新
+                state = 2;
+                msg = "存在"
+            }
         }
 
         return {
-            isExist,
+            state,
             msg
         }
 
@@ -42,8 +60,23 @@ function isExist( account, source = "" ){
  * @param account, areacode, source, status, return_msg
  * @return Obj
  */
-function upsert( account, areacode, status, return_msg, source = "" ){
+function upsert( transaction ){
     return zco( function * ( next ){
+
+        if( Object.keys( transaction ).length == 0 ){
+            return {
+                success: false,
+                msg: "params Error from insert: params is Empty!",
+                sql: "",
+            }
+        }
+
+        let account = transaction.account,
+            areacode = transaction.areacode,
+            status = transaction.status,
+            return_msg = transaction.return_msg,
+            source = transaction.source || "";
+
         if( !account || !areacode || !status){
             return {
                 success: false,
@@ -53,24 +86,38 @@ function upsert( account, areacode, status, return_msg, source = "" ){
 
         }
 
-        let [existErr, exist] = yield isExist(account, source);
+        let [existErr, exist] = yield isExist(account, status, source);
         if( existErr ){
             console.log(`${account}-${account}，error from insert, exec isExist...`)
             throw existErr;
         }
         let sqlStr = "";
         let flag = false;
-        if( exist.isExist ){//存在-更新
+        let time_stamp = (+new Date());
+        if( exist.state == 2){//存在-更新
 
-            sqlStr = `update log set status = ${status}, return_msg = '${return_msg}', update_time = now() where account = '${account}'  and source = '${source}' `;
+            let currentDate = new Date();
+            let time = ( currentDate.getFullYear() ) + "-" +
+                (currentDate.getMonth() < 10 ? '0' + (currentDate.getMonth()+1) : (currentDate.getMonth()+1)) + "-"
+                + (currentDate.getDate() < 10 ? '0' + (currentDate.getDate()) : (currentDate.getDate())) ;
+            let start = +( new Date( time + " 00:00:00") ),end = +( new Date( time + " 23:59:59") );
 
-        }else{//不存在-插入
+            sqlStr = `update log set status = ${status}, return_msg = '${return_msg}', update_time = now(), time_stamp = ${time_stamp} where account = '${account}'  and source = '${source}' and time_stamp < ${end} and time_stamp > ${start}`;
+
+        }else if( exist.state == 1){//不存在-插入
             flag = true;
-            sqlStr = `insert into log(account, areacode, source, status, return_msg, update_time) values('${account}','${areacode}', '${source}', ${status}, '${return_msg}', now() )`;
+            sqlStr = `insert into log(account, areacode, source, status, return_msg, update_time, time_stamp) values('${account}','${areacode}', '${source}', ${status}, '${return_msg}', now(), ${time_stamp} )`;
 
+        }else {
+            return {
+                success: false,
+                msg: "status behind or error!",
+                sql: "",
+            }
         }
 
         let [err, data ] = yield pgClient( pgConnectionStr, sqlStr, pgOptions);
+        console.log( data );
         let success = true;
         let msg = flag ? "insert success" : "update success";
 
