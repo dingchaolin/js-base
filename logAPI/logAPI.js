@@ -57,7 +57,7 @@ function isExist( account, status, source = "" ){
 
 /**
  * 插入一条记录
- * @param account, areacode, source, status, return_msg
+ * @param {account, areacode, source, status, return_msg, type}
  * @return Obj
  */
 function upsert( transaction ){
@@ -75,6 +75,7 @@ function upsert( transaction ){
             areacode = transaction.areacode,
             status = transaction.status,
             return_msg = transaction.return_msg,
+            type = transaction.type,
             source = transaction.source || "";
 
         if( !account || !areacode || !status){
@@ -106,7 +107,7 @@ function upsert( transaction ){
 
         }else if( exist.state == 1){//不存在-插入
             flag = true;
-            sqlStr = `insert into log(account, areacode, source, status, return_msg, update_time, time_stamp) values('${account}','${areacode}', '${source}', ${status}, '${return_msg}', now(), ${time_stamp} )`;
+            sqlStr = `insert into log(account, areacode, source, status, return_msg, update_time, time_stamp, type) values('${account}','${areacode}', '${source}', ${status}, '${return_msg}', now(), ${time_stamp}, ${type} )`;
 
         }else {
             return {
@@ -117,7 +118,7 @@ function upsert( transaction ){
         }
 
         let [err, data ] = yield pgClient( pgConnectionStr, sqlStr, pgOptions);
-        console.log( data );
+
         let success = true;
         let msg = flag ? "insert success" : "update success";
 

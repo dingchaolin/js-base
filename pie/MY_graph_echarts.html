@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/graph_echarts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:18:59 GMT -->
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>统计</title>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+
+    <div class="row  border-bottom white-bg dashboard-header">
+        <div class="col-sm-12">
+            <p>数据统计</p>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>公积金授权统计</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="echarts" id="echarts-pie-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/plugins/echarts/echarts-all.js"></script>
+    <script src="js/content.min.js?v=1.0.0"></script>
+    <script>
+        $(function () {
+
+            var l = echarts.init(document.getElementById("echarts-pie-chart")),
+                    u = {
+                        title: {
+                            text: "",
+                            subtext: "",
+                            x: "center"
+                        },
+                        tooltip: {
+                            trigger: "item",
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: "vertical",
+                            x: "left",
+                            data: ["成功", "授权成功", "内部服务错误", "验证码错误", "密码错误"]
+                        },
+                        calculable: !0,
+                        series: [{
+                            name: "授权情况",
+                            type: "pie",
+                            radius: "90%",
+                            center: ["50%", "50%"],
+                            data: [{
+                                value: 335,
+                                name: "成功"
+                            }, {
+                                value: 310,
+                                name: "授权成功"
+                            }, {
+                                value: 234,
+                                name: "验证码错误"
+                            }, {
+                                value: 135,
+                                name: "内部服务错误"
+                            }, {
+                                value: 1548,
+                                name: "密码错误"
+                            }
+                            ]
+                        }
+                        ]
+                    };
+            l.setOption(u),
+                    $(window).resize(l.resize);
+
+
+        });
+
+    </script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/graph_echarts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:18:59 GMT -->
+</html>
