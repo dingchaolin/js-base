@@ -7,6 +7,8 @@
     "baidu-ocr-api": "^2.0.5",
     "gm": "^1.23.0",
     "node-tesseract": "^0.2.7",
+    "nodemailer": "^4.0.1",
+    "react-simple-pie-chart": "^0.4.1",
     "validator": "^7.0.0"
   },
   "devDependencies": {},

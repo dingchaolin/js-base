@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="container"></div>
+</body>
+<script>
+    var npx = function (angle) {
+        if( angle < 0.50 || angle == 0.50 ){
+            return 1
+        }
+        return -1;
+    }
+    var npy = function (angle) {
+        if(angle<0.25||angle==0.25||angle>0.75||angle==0.75){
+            return -1
+        }
+        return 1;
+    }
+
+    var pie=function (ratios,width,height) {
+        var v=0;
+        for(var i=0;i<ratios.length;i++){
+            v+=ratios[i].ratio;
+        }
+        width=width||200;
+        height=height||200;
+        var r=width/2-10;
+
+        var startPos={
+            "x":width/2,
+            "y":height/2-r
+        };
+
+        var last_pos=startPos;
+        var svg='<svg width="'+width+'" height="'+height+'">';
+        var angle=0;
+        for(var i=0;i<ratios.length;i++){
+            angle+=ratios[i].ratio;
+            var pos={
+                "x":Math.abs(Math.sin(angle*Math.PI*2))*r*npx(angle)+width/2,
+                "y":height/2+Math.abs(Math.cos(angle*Math.PI*2)*r)*npy(angle)
+            };
+            var is_big="0";
+            if(ratios[i].ratio>0.5||ratios[i]==0.5){
+                is_big="1";
+            }
+
+            var d="M"+(width/2)+","+(height/2)+" L"+last_pos.x+","+last_pos.y+" A"+r+","+r+" 0,"+is_big+",1 "+pos.x+","+pos.y+" z";
+            var style='fill:'+ratios[i].color+";fill-opacity:1,stroke:black;stroke-width:1";
+            var path="<path d='"+d+"' style='"+style+"'/>";
+            svg+=path;
+            last_pos=pos;
+        }
+        svg+="</svg>";
+        return svg;
+    }
+
+    var s=[{ratio:0.15,color:"red"},{ratio:0.25,color:"blue"},{ratio:0.25,color:"yellow"},{ratio:0.35,color:"pink"}];
+    let html = pie(s,400,400);
+    console.log( html )
+    document.getElementById("container").innerHTML=html;
+
+
+
+</script>
+</html>
